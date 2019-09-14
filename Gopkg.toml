@@ -24,6 +24,9 @@
 #   go-tests = true
 #   unused-packages = true
 
+[metadata.heroku]
+  root-package = "github.com/somprabhsharma/the-lazy-traveler"
+  go-version = "go1.11.5"
 
 [[constraint]]
   name = "github.com/gin-gonic/gin"
