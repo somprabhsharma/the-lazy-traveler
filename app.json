@@ -1,0 +1,9 @@
+{
+  "name": "The Lazy Traveler",
+  "description": "A Go app, which finds optimum flight path between two cities",
+  "keywords": [
+    "go"
+  ],
+  "website": "https://github.com/somprabhsharma/the-lazy-traveler",
+  "repository": "https://github.com/somprabhsharma/the-lazy-traveler"
+}
