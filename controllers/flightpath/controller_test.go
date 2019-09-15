@@ -56,17 +56,6 @@ var _ = Describe("controllers", func() {
 			},
 		}
 
-		//shortestPath := []flightpath.ScheduleDetail{
-		//	{
-		//		City: "A",
-		//		Timestamp: 1,
-		//	},
-		//	{
-		//		City: "Z",
-		//		Timestamp: 10,
-		//	},
-		//}
-
 		It("should throw error if start city and end city are same", func() {
 			data.TripPlan = &flightpath.TripDetail{
 				StartCity: "A",
