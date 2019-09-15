@@ -49,16 +49,16 @@ func (c *Controller) FindShortestFlightPath(data flightpath.LazyJackRequest) ([]
 		return nil, err
 	}
 
-	// generate origin and destination city parameters
-	origin := flightpath.ScheduleDetail{
+	// generate source and destination city parameters
+	source := flightpath.ScheduleDetail{
 		City: data.TripPlan.StartCity,
 	}
 	destination := flightpath.ScheduleDetail{
 		City: data.TripPlan.EndCity,
 	}
 
-	// execute dijkstra's algorithm to get array of paths from origin to destination
-	shortestDuration, paths := scheduleGraph.getShortestPaths(origin, destination)
+	// execute dijkstra's algorithm to get array of paths from source to destination
+	shortestDuration, paths := scheduleGraph.getShortestPaths(source, destination)
 
 	logger.Info(literals.LazyJack, "successfully applied dijkstra's algorithm and shortestDuration is: "+strconv.FormatInt(shortestDuration, 10)+" with paths: ", paths)
 
