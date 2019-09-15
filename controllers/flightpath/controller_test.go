@@ -110,5 +110,159 @@ var _ = Describe("controllers", func() {
 			Expect(shortestPath[2].City).To(Equal("Z"))
 			Expect(shortestPath[2].Timestamp).To(Equal(int64(15)))
 		})
+
+		It("should throw error if any flight schedule provided does not have arrival time", func() {
+			data.TripPlan = &flightpath.TripDetail{
+				StartCity: "A",
+				EndCity:   "Z",
+			}
+			data.Schedules = []*flightpath.FlightDetail{
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "A",
+						Timestamp: 1,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: 10,
+					},
+				},
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "A",
+						Timestamp: 2,
+					},
+				},
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "B",
+						Timestamp: 8,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: 15,
+					},
+				},
+			}
+			shortestPath, err := controller.FindShortestFlightPath(data)
+			Expect(shortestPath).Should(BeNil())
+			Expect(err).ShouldNot(BeNil())
+			Expect(err.Error()).To(Equal(errorconsts.InvalidFlightSchedule))
+		})
+
+		It("should throw error if any flight schedule provided does not have departure time", func() {
+			data.TripPlan = &flightpath.TripDetail{
+				StartCity: "A",
+				EndCity:   "Z",
+			}
+			data.Schedules = []*flightpath.FlightDetail{
+				{
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: 10,
+					},
+				},
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "B",
+						Timestamp: 8,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: 15,
+					},
+				},
+			}
+			shortestPath, err := controller.FindShortestFlightPath(data)
+			Expect(shortestPath).Should(BeNil())
+			Expect(err).ShouldNot(BeNil())
+			Expect(err.Error()).To(Equal(errorconsts.InvalidFlightSchedule))
+		})
+
+		It("should throw error if any flight schedule provided have invalid timestamp i.e. negative", func() {
+			data.TripPlan = &flightpath.TripDetail{
+				StartCity: "A",
+				EndCity:   "Z",
+			}
+			data.Schedules = []*flightpath.FlightDetail{
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "A",
+						Timestamp: 1,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: -1,
+					},
+				},
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "A",
+						Timestamp: 2,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "B",
+						Timestamp: 8,
+					},
+				},
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "B",
+						Timestamp: 8,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: 15,
+					},
+				},
+			}
+			shortestPath, err := controller.FindShortestFlightPath(data)
+			Expect(shortestPath).Should(BeNil())
+			Expect(err).ShouldNot(BeNil())
+			Expect(err.Error()).To(Equal(errorconsts.InvalidFlightSchedule))
+		})
+
+		It("should throw error if any flight schedule provided have invalid timestamp i.e. zero", func() {
+			data.TripPlan = &flightpath.TripDetail{
+				StartCity: "A",
+				EndCity:   "Z",
+			}
+			data.Schedules = []*flightpath.FlightDetail{
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "A",
+						Timestamp: 0,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: 10,
+					},
+				},
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "A",
+						Timestamp: 2,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "B",
+						Timestamp: 8,
+					},
+				},
+				{
+					Departure: &flightpath.ScheduleDetail{
+						City:      "B",
+						Timestamp: 8,
+					},
+					Arrival: &flightpath.ScheduleDetail{
+						City:      "Z",
+						Timestamp: 15,
+					},
+				},
+			}
+			shortestPath, err := controller.FindShortestFlightPath(data)
+			Expect(shortestPath).Should(BeNil())
+			Expect(err).ShouldNot(BeNil())
+			Expect(err.Error()).To(Equal(errorconsts.InvalidFlightSchedule))
+		})
 	})
 })
