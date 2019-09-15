@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/somprabhsharma/the-lazy-traveler/constants/errorconsts"
+	"github.com/somprabhsharma/the-lazy-traveler/constants/literals"
 	"github.com/somprabhsharma/the-lazy-traveler/utils/logger"
 	"net/http"
 	"strconv"
@@ -48,7 +49,7 @@ func HandleErrors(c *gin.Context) {
 		}
 	}
 
-	logger.Info("lazy-jack", "Code: "+strconv.Itoa(ltError.Code)+" Message: "+ltError.Message+" Error: "+ltError.Err)
+	logger.Info(literals.LazyJack, "Code: "+strconv.Itoa(ltError.Code)+" Message: "+ltError.Message+" Error: "+ltError.Err, nil)
 
 	c.AbortWithStatusJSON(ltError.HTTPCode, ltError)
 	fmt.Println(c.Writer.Header().Get("Content-Type"))

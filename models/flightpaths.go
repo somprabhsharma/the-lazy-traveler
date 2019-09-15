@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/base64"
 	"encoding/json"
+	"github.com/somprabhsharma/the-lazy-traveler/constants/literals"
 	"github.com/somprabhsharma/the-lazy-traveler/entities/flightpath"
 	"github.com/somprabhsharma/the-lazy-traveler/models/redis"
 	"github.com/somprabhsharma/the-lazy-traveler/utils/logger"
@@ -33,7 +34,7 @@ func (t *flightPathModel) Put(shortestPath []flightpath.ScheduleDetail, data fli
 	// stringify the shortest path result
 	shortestPathBytes, err := json.Marshal(shortestPath)
 	if err != nil {
-		logger.Warn("lazy-jack", "error while saving shortest path data in cache for key: "+key, err)
+		logger.Warn(literals.LazyJack, "error while saving shortest path data in cache for key: "+key, err, nil)
 		return nil
 	}
 
@@ -49,7 +50,7 @@ func (t *flightPathModel) Get(data flightpath.LazyJackRequest) ([]flightpath.Sch
 	// save it in cache
 	value, err := t.Cache.Get(key)
 	if err != nil {
-		logger.Warn("lazy-jack", "error while getting shortest path data from cache for key: "+key, err)
+		logger.Warn(literals.LazyJack, "error while getting shortest path data from cache for key: "+key, err, nil)
 		return nil, err
 	}
 
@@ -57,7 +58,7 @@ func (t *flightPathModel) Get(data flightpath.LazyJackRequest) ([]flightpath.Sch
 	var shortestPath []flightpath.ScheduleDetail
 	err = json.Unmarshal([]byte(value), &shortestPath)
 	if err != nil {
-		logger.Warn("lazy-jack", "error while unmarshalling shortest path data obtained from cache for key: "+key, err)
+		logger.Warn(literals.LazyJack, "error while unmarshalling shortest path data obtained from cache for key: "+key, err, nil)
 		return nil, err
 	}
 
