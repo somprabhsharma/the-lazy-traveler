@@ -3,8 +3,11 @@ package flightpath
 import (
 	"errors"
 	"github.com/somprabhsharma/the-lazy-traveler/constants/errorconsts"
+	"github.com/somprabhsharma/the-lazy-traveler/constants/literals"
 	"github.com/somprabhsharma/the-lazy-traveler/entities/flightpath"
 	"github.com/somprabhsharma/the-lazy-traveler/models"
+	"github.com/somprabhsharma/the-lazy-traveler/utils/logger"
+	"strconv"
 )
 
 // Controller is a struct which will act like a controller
@@ -19,7 +22,7 @@ func NewController(dao *models.Dao) *Controller {
 	}
 }
 
-// FindShortestFlightPath finds shortest flight path
+// FindShortestFlightPath finds shortest flight path for given data
 func (c *Controller) FindShortestFlightPath(data flightpath.LazyJackRequest) ([]flightpath.ScheduleDetail, error) {
 	if data.TripPlan.StartCity == data.TripPlan.EndCity {
 		return nil, errors.New(errorconsts.SameStartEndCity)
@@ -28,8 +31,11 @@ func (c *Controller) FindShortestFlightPath(data flightpath.LazyJackRequest) ([]
 	// get shortest path data from cache if present
 	shortestPath, err := c.Dao.FlightPathModel.Get(data)
 	if err == nil && shortestPath != nil {
+		logger.Info(literals.LazyJack, "returning shortest path from cache", shortestPath)
 		return shortestPath, nil
 	}
+
+	logger.Info(literals.LazyJack, "calculating shortest path", nil)
 
 	// filter flight schedules
 	data.Schedules = filterFlightSchedules(data.Schedules, data.PreferredTime)
@@ -46,9 +52,11 @@ func (c *Controller) FindShortestFlightPath(data flightpath.LazyJackRequest) ([]
 	}
 
 	// execute dijkstra's algorithm to get array of paths from origin to destination
-	shortestDuration, paths := scheduleGraph.GetShortestPaths(origin, destination)
+	shortestDuration, paths := scheduleGraph.getShortestPaths(origin, destination)
 
-	// select the better paths among shortest paths
+	logger.Info(literals.LazyJack, "successfully applied dijkstra's algorithm and shortestDuration is: "+strconv.FormatInt(shortestDuration, 10)+" with paths: ", paths)
+
+	// select the relevant paths among shortest paths
 	shortestPath, err = getShortestPath(shortestDuration, paths)
 	if err != nil {
 		return nil, err
@@ -56,6 +64,8 @@ func (c *Controller) FindShortestFlightPath(data flightpath.LazyJackRequest) ([]
 
 	// save this shortest path in redis
 	_ = c.Dao.FlightPathModel.Put(shortestPath, data)
+
+	logger.Info(literals.LazyJack, "successfully calculated shortest path: ", shortestPath)
 	return shortestPath, nil
 }
 

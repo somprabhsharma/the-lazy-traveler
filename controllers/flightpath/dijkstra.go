@@ -2,7 +2,6 @@ package flightpath
 
 import (
 	"container/heap"
-	"fmt"
 	"github.com/somprabhsharma/the-lazy-traveler/entities/flightpath"
 	"strconv"
 )
@@ -98,8 +97,8 @@ func (g *graph) getEdges(node string) []edge {
 	return g.Schedules[node]
 }
 
-// GetShortestPaths gets the shortest path between origin and destination
-func (g *graph) GetShortestPaths(origin, destination flightpath.ScheduleDetail) (int64, map[int64][][]flightpath.ScheduleDetail) {
+// getShortestPaths gets the shortest path between origin and destination
+func (g *graph) getShortestPaths(origin, destination flightpath.ScheduleDetail) (int64, map[int64][][]flightpath.ScheduleDetail) {
 	// create a heap tree starting with the origin city as first node
 	heapT := newHeap()
 	heapT.push(directPath{duration: 0, nodes: []flightpath.ScheduleDetail{origin}})
@@ -123,6 +122,7 @@ func (g *graph) GetShortestPaths(origin, destination flightpath.ScheduleDetail) 
 
 		// if we have traversed the complete tree i.e. the last node in the heap is origin node then we have found our shortest path
 		// add this shortest path to the shortest paths array
+		// update the value of shortestDuration
 		if node.City == destination.City {
 			if len(shortestPaths) != 0 && p.duration > shortestDuration {
 				continue
@@ -163,20 +163,21 @@ func (g *graph) GetShortestPaths(origin, destination flightpath.ScheduleDetail) 
 					updatedPNodes = p.nodes
 				}
 
+				// handle case when there is gap between arrival and departure in connecting cities
 				if node.Timestamp > 0 && e.OriginFlightTimestamp-node.Timestamp > 0 {
 					gapBetweenFlights = e.OriginFlightTimestamp - node.Timestamp
-					fmt.Println("neeche gap", e.OriginFlightTimestamp-node.Timestamp, "e.OriginFlightTimestamp", e.OriginFlightTimestamp, "node.Timestamp", node.Timestamp)
 					updatedPNodes = append(updatedPNodes, flightpath.ScheduleDetail{
 						City:      node.City,
 						Timestamp: e.OriginFlightTimestamp,
 					})
 				}
-				updatedNodes = append(updatedNodes, append(updatedPNodes, e.Schedule)...)
 
+				updatedNodes = append(updatedNodes, append(updatedPNodes, e.Schedule)...)
 				if originFlightTimestamp == 0 {
 					originFlightTimestamp = e.Schedule.Timestamp
 				}
 
+				// do not add reverse paths, this is to make sure that only directed paths are added to the heap
 				if !e.Reverse {
 					heapT.push(directPath{duration: p.duration + e.Duration + gapBetweenFlights, nodes: updatedNodes})
 				}
@@ -189,104 +190,4 @@ func (g *graph) GetShortestPaths(origin, destination flightpath.ScheduleDetail) 
 	}
 
 	return shortestDuration, shortestPaths
-}
-
-func main() {
-	schedules := []flightpath.FlightDetail{
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "A",
-				Timestamp: 2,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "Z",
-				Timestamp: 10,
-			},
-		},
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "A",
-				Timestamp: 2,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "Z",
-				Timestamp: 9,
-			},
-		},
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "A",
-				Timestamp: 1,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "B",
-				Timestamp: 5,
-			},
-		},
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "B",
-				Timestamp: 5,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "Z",
-				Timestamp: 8,
-			},
-		},
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "A",
-				Timestamp: 1,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "B",
-				Timestamp: 4,
-			},
-		},
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "B",
-				Timestamp: 4,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "Z",
-				Timestamp: 8,
-			},
-		},
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "B",
-				Timestamp: 4,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "Z",
-				Timestamp: 9,
-			},
-		},
-		{
-			Departure: &flightpath.ScheduleDetail{
-				City:      "B",
-				Timestamp: 4,
-			},
-			Arrival: &flightpath.ScheduleDetail{
-				City:      "A",
-				Timestamp: 8,
-			},
-		},
-	}
-	fmt.Println("Dijkstra")
-	// Example
-	graph := newGraph()
-	for _, schedule := range schedules {
-		duration := schedule.Arrival.Timestamp - schedule.Departure.Timestamp
-		graph.addEdge(*schedule.Departure, *schedule.Arrival, duration)
-	}
-	start := flightpath.ScheduleDetail{
-		City: "A",
-	}
-	end := flightpath.ScheduleDetail{
-		City: "Z",
-	}
-	fmt.Println(graph)
-	fmt.Println(graph.GetShortestPaths(start, end))
 }

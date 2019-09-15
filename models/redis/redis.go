@@ -20,9 +20,16 @@ type Client struct {
 //NewClient initializes redis client with proper configuration
 func NewClient() *Client {
 	var redisClient = &Client{}
+
+	// initialize redis client for dev environment
+	if constants.Env.Environment == "dev" {
+		redisClient.client = getLocalClient()
+		return redisClient
+	}
+
 	opt, err := redis.ParseURL(constants.Env.RedisURL)
 	if err != nil {
-		logger.Err("Redis", "Error while parsing redis url", err)
+		logger.Err("Redis", "Error while parsing redis url", err, nil)
 	}
 
 	redisClient.client = redis.NewClient(&redis.Options{
@@ -30,7 +37,7 @@ func NewClient() *Client {
 		DB:       opt.DB,
 		Password: opt.Password,
 		OnConnect: func(conn *redis.Conn) error {
-			logger.Info("Redis", "successfully connected to redis.")
+			logger.Info("Redis", "successfully connected to redis.", nil)
 			return nil
 		},
 		MaxRetries:      maxRetries,
@@ -39,9 +46,22 @@ func NewClient() *Client {
 
 	_, err = redisClient.client.Ping().Result()
 	if err != nil {
-		logger.Err("Redis", "Error while connecting to redis.", err)
+		logger.Err("Redis", "Error while connecting to redis.", err, nil)
 	}
 	return redisClient
+}
+
+// getLocalClient gets local redis client
+func getLocalClient() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: constants.Env.RedisURL,
+		OnConnect: func(conn *redis.Conn) error {
+			logger.Info("Redis", "successfully connected to redis.", nil)
+			return nil
+		},
+		MaxRetries:      maxRetries,
+		MaxRetryBackoff: maxRetryBackOff,
+	})
 }
 
 // Put value corresponding to key in redis
