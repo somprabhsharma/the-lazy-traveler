@@ -12,6 +12,26 @@ There are few assumptions made while implementing the algorithm, which are:
 - If there is gap between arrival and departure time of a flight at an intermediate city then the gap is also included in the duration to calculate shortest path.
 - The preferred time is inclusive i.e any flight that is after or at preferred time will be considered.
 
+**Quick Start**
+----
+
+Assuming you have enough knowledge about go, have installed go & already cloned `the-lazy-traveler`.
+Before running the project, please make sure you have redis-server up and running.
+
+* **Go Version Used:** 1.11.5
+
+#### Test Project
+There is `check.sh` file which takes care of all the testing aspects from linting to tests & much more. 
+```sh
+bash check.sh
+# check.sh checks for 4 aspects - formatting, correctness, linting & tests
+```
+#### Run Project
+```sh
+go install          # build go project, create binary & put it in $GOPATH/bin
+the-lazy-traveler   # run the-lazy-traveler directly as $GOPATH/bin is already added in $PATH
+```
+
 **APIs**
 ----
 **Find Shortest Flight Path for Lazy Jack**
