@@ -30,6 +30,22 @@
   version = "v1.4.0"
 
 [[projects]]
+  digest = "1:61a8ca58fee5891ccd5e9e0503d3cb0636fe15505a7b758d51fe38d38bfce32f"
+  name = "github.com/go-redis/redis"
+  packages = [
+    ".",
+    "internal",
+    "internal/consistenthash",
+    "internal/hashtag",
+    "internal/pool",
+    "internal/proto",
+    "internal/util",
+  ]
+  pruneopts = "UT"
+  revision = "17c058513b3e03c5e23136c18582fdd8ac8a3645"
+  version = "v6.15.5"
+
+[[projects]]
   digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
@@ -118,6 +134,7 @@
   input-imports = [
     "github.com/caarlos0/env",
     "github.com/gin-gonic/gin",
+    "github.com/go-redis/redis",
     "github.com/heroku/x/hmetrics/onload",
   ]
   solver-name = "gps-cdcl"
