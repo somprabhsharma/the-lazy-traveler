@@ -29,7 +29,10 @@ func newFlightPathModel(redis *redis.Client) *flightPathModel {
 // Put puts shortest path result in cache
 func (t *flightPathModel) Put(shortestPath []flightpath.ScheduleDetail, data flightpath.LazyJackRequest) error {
 	// generate key from input data
-	key := generateCacheKey(data)
+	key, err := generateCacheKey(data)
+	if err != nil {
+		return err
+	}
 
 	// stringify the shortest path result
 	shortestPathBytes, err := json.Marshal(shortestPath)
@@ -45,7 +48,10 @@ func (t *flightPathModel) Put(shortestPath []flightpath.ScheduleDetail, data fli
 // Get gets shortest path result from cache
 func (t *flightPathModel) Get(data flightpath.LazyJackRequest) ([]flightpath.ScheduleDetail, error) {
 	// generate key from input data
-	key := generateCacheKey(data)
+	key, err := generateCacheKey(data)
+	if err != nil {
+		return nil, err
+	}
 
 	// save it in cache
 	value, err := t.Cache.Get(key)
@@ -58,7 +64,7 @@ func (t *flightPathModel) Get(data flightpath.LazyJackRequest) ([]flightpath.Sch
 	var shortestPath []flightpath.ScheduleDetail
 	err = json.Unmarshal([]byte(value), &shortestPath)
 	if err != nil {
-		logger.Warn(literals.LazyJack, "error while unmarshalling shortest path data obtained from cache for key: "+key, err, nil)
+		logger.Warn(literals.LazyJack, "error while un marshalling shortest path data obtained from cache for key: "+key, err, nil)
 		return nil, err
 	}
 
@@ -66,8 +72,15 @@ func (t *flightPathModel) Get(data flightpath.LazyJackRequest) ([]flightpath.Sch
 }
 
 // generateCacheKey generates unique key for input data
-func generateCacheKey(data flightpath.LazyJackRequest) string {
-	key := data.TripPlan.StartCity + "_" + data.TripPlan.EndCity + "_" + strconv.FormatInt(data.PreferredTime, 10)
+func generateCacheKey(data flightpath.LazyJackRequest) (string, error) {
+	// add schedules to the key as well
+	schedulesJSON, err := json.Marshal(data.Schedules)
+	if err != nil {
+		logger.Warn(literals.LazyJack, "error while marshalling schedules for generating key", err, nil)
+		return "", err
+	}
+
+	key := data.TripPlan.StartCity + "_" + data.TripPlan.EndCity + "_" + strconv.FormatInt(data.PreferredTime, 10) + string(schedulesJSON)
 	base64key := base64.StdEncoding.EncodeToString([]byte(key))
-	return base64key + flightPathSuffix
+	return base64key + flightPathSuffix, nil
 }
