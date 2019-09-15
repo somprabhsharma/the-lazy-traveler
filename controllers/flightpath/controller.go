@@ -88,7 +88,7 @@ func filterFlightSchedules(schedules []*flightpath.FlightDetail, cutoffTimestamp
 
 	filteredSchedules := make([]*flightpath.FlightDetail, 0)
 	for _, schedule := range schedules {
-		if schedule.Departure.Timestamp > cutoffTimestamp {
+		if schedule.Departure.Timestamp >= cutoffTimestamp {
 			filteredSchedules = append(filteredSchedules, schedule)
 		}
 	}
