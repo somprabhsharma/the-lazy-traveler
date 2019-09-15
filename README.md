@@ -16,7 +16,7 @@ There are few assumptions made while implementing the algorithm, which are:
 ----
 **Find Shortest Flight Path for Lazy Jack**
 
-Returns shortest flight path between origin and destination city for lazy jack using dijkstra's algorithm.
+Returns shortest flight path between source and destination city for lazy jack using dijkstra's algorithm.
 
 * **URL**
 

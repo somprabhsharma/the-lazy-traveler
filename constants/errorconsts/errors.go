@@ -20,7 +20,7 @@ const (
 
 const (
 	// GenericErrorMessage message
-	GenericErrorMessage = "Something went wrong. Please try again later."
+	GenericErrorMessage = "Oops! I missed that test case. Please contact me on somprabhsharma@outlook.com with details and I will fix it."
 	// GenericErrorCode code
 	GenericErrorCode = 100
 )
@@ -66,7 +66,7 @@ var LTErrorMap = map[string]LTError{
 		Code:    NoFlightsAvailableCode,
 	},
 	SameStartEndCity: {
-		Message: "Hola! Just take a cab and go home :-p",
+		Message: "Source and Destination cannot be same",
 		Code:    SameStartEndCityCode,
 	},
 	InvalidFlightSchedule: {

@@ -76,7 +76,7 @@ type edge struct {
 	Reverse               bool //reverse flag to ignore reverse directional edges
 }
 
-// graph is a graph data structure to store the various schedules from given origin i.e. neighbouring nodes of a vertex
+// graph is a graph data structure to store the various schedules from given source i.e. neighbouring nodes of a vertex
 type graph struct {
 	Schedules map[string][]edge
 }
@@ -87,9 +87,9 @@ func newGraph() *graph {
 }
 
 // addEdge adds an edge to the graph
-func (g *graph) addEdge(origin, destination flightpath.ScheduleDetail, duration int64) {
-	g.Schedules[origin.City] = append(g.Schedules[origin.City], edge{Schedule: destination, Duration: duration, OriginFlightTimestamp: origin.Timestamp, Reverse: false})
-	g.Schedules[destination.City] = append(g.Schedules[destination.City], edge{Schedule: origin, Duration: duration, OriginFlightTimestamp: destination.Timestamp, Reverse: true})
+func (g *graph) addEdge(source, destination flightpath.ScheduleDetail, duration int64) {
+	g.Schedules[source.City] = append(g.Schedules[source.City], edge{Schedule: destination, Duration: duration, OriginFlightTimestamp: source.Timestamp, Reverse: false})
+	g.Schedules[destination.City] = append(g.Schedules[destination.City], edge{Schedule: source, Duration: duration, OriginFlightTimestamp: destination.Timestamp, Reverse: true})
 }
 
 // getEdges gets all the edges of given node
@@ -97,11 +97,11 @@ func (g *graph) getEdges(node string) []edge {
 	return g.Schedules[node]
 }
 
-// getShortestPaths gets the shortest path between origin and destination
-func (g *graph) getShortestPaths(origin, destination flightpath.ScheduleDetail) (int64, map[int64][][]flightpath.ScheduleDetail) {
-	// create a heap tree starting with the origin city as first node
+// getShortestPaths gets the shortest path between source and destination
+func (g *graph) getShortestPaths(source, destination flightpath.ScheduleDetail) (int64, map[int64][][]flightpath.ScheduleDetail) {
+	// create a heap tree starting with the source city as first node
 	heapT := newHeap()
-	heapT.push(directPath{duration: 0, nodes: []flightpath.ScheduleDetail{origin}})
+	heapT.push(directPath{duration: 0, nodes: []flightpath.ScheduleDetail{source}})
 
 	// list of visited nodes to keep track of node
 	visitedNode := make(map[string]bool)
@@ -120,7 +120,7 @@ func (g *graph) getShortestPaths(origin, destination flightpath.ScheduleDetail) 
 			continue
 		}
 
-		// if we have traversed the complete tree i.e. the last node in the heap is origin node then we have found our shortest path
+		// if we have traversed the complete tree i.e. the last node in the heap is source node then we have found our shortest path
 		// add this shortest path to the shortest paths array
 		// update the value of shortestDuration
 		if node.City == destination.City {
@@ -140,20 +140,20 @@ func (g *graph) getShortestPaths(origin, destination flightpath.ScheduleDetail) 
 		for _, e := range edges {
 			// if any node at the end of edge is not visited yet, then add it to heap with the path duration
 			if !visitedNode[e.Schedule.City+"_"+strconv.FormatInt(e.Schedule.Timestamp, 10)] {
-				if node.City != origin.City && node.Timestamp > e.OriginFlightTimestamp {
+				if node.City != source.City && node.Timestamp > e.OriginFlightTimestamp {
 					continue
 				}
 
 				gapBetweenFlights := int64(0)
-				// handle specific case of origin schedule
-				// as there can be multiple flights from the origin, and we don't know from where to start
-				// so we added origin in the heap with 0 flight timestamp
+				// handle specific case of source schedule
+				// as there can be multiple flights from the source, and we don't know from where to start
+				// so we added source in the heap with 0 flight timestamp
 				// hence, we are updating the timestamp to its correct value before adding it to the heap
 				var updatedNodes []flightpath.ScheduleDetail
 				var updatedPNodes []flightpath.ScheduleDetail
-				if node.City == origin.City && node.Timestamp == 0 {
+				if node.City == source.City && node.Timestamp == 0 {
 					for _, v := range p.nodes {
-						if v.City == origin.City && v.Timestamp == 0 {
+						if v.City == source.City && v.Timestamp == 0 {
 							v.Timestamp = e.OriginFlightTimestamp
 							originFlightTimestamp = e.OriginFlightTimestamp
 						}
