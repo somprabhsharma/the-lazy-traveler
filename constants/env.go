@@ -17,8 +17,9 @@ func init() {
 }
 
 type envVars struct {
-	Port string `env:"PORT" envDefault:"3050"`
+	Environment string `env:"ENV" envDefault:"dev"`
+	Port        string `env:"PORT" envDefault:"3050"`
 
 	// Redis config
-	RedisURL string `env:"REDIS_URL" envDefault:"http://localhost:6379"`
+	RedisURL string `env:"REDIS_URL" envDefault:"localhost:6379"`
 }

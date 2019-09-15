@@ -4,9 +4,11 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/somprabhsharma/the-lazy-traveler/constants/errorconsts"
+	"github.com/somprabhsharma/the-lazy-traveler/constants/literals"
 	"github.com/somprabhsharma/the-lazy-traveler/controllers/flightpath"
 	entities "github.com/somprabhsharma/the-lazy-traveler/entities/flightpath"
 	"github.com/somprabhsharma/the-lazy-traveler/models"
+	"github.com/somprabhsharma/the-lazy-traveler/utils/logger"
 	"net/http"
 )
 
@@ -31,10 +33,13 @@ func (h *Handler) FindShortestFlightPath(c *gin.Context) {
 	}
 
 	body, _ := v.(entities.LazyJackRequest)
+	logger.Info(literals.LazyJack, "Request received to find shortest flight path with data", body)
+
 	shortestPath, err := h.flightPathController.FindShortestFlightPath(body)
 	if err != nil {
+		logger.Err(literals.LazyJack, "Error while finding shortest flight path", err, body)
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"flight_plan": shortestPath})
+	c.JSON(http.StatusOK, gin.H{literals.FlightPlan: shortestPath})
 }
