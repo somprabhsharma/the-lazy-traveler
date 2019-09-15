@@ -38,10 +38,16 @@ func (c *Controller) FindShortestFlightPath(data flightpath.LazyJackRequest) ([]
 	logger.Info(literals.LazyJack, "calculating shortest path", nil)
 
 	// filter flight schedules
-	data.Schedules = filterFlightSchedules(data.Schedules, data.PreferredTime)
+	data.Schedules, err = filterFlightSchedules(data.Schedules, data.PreferredTime)
+	if err != nil {
+		return nil, err
+	}
 
 	// convert schedules array into graph
-	scheduleGraph := generateGraphOfSchedules(data.Schedules)
+	scheduleGraph, err := generateGraphOfSchedules(data.Schedules)
+	if err != nil {
+		return nil, err
+	}
 
 	// generate origin and destination city parameters
 	origin := flightpath.ScheduleDetail{
@@ -70,29 +76,40 @@ func (c *Controller) FindShortestFlightPath(data flightpath.LazyJackRequest) ([]
 }
 
 // generateGraphOfSchedules converts flight schedules into graph data structure
-func generateGraphOfSchedules(schedules []*flightpath.FlightDetail) *graph {
+func generateGraphOfSchedules(schedules []*flightpath.FlightDetail) (*graph, error) {
 	graph := newGraph()
 	for _, schedule := range schedules {
+		if schedule.Arrival == nil || schedule.Departure == nil {
+			return nil, errors.New(errorconsts.InvalidFlightSchedule)
+		}
 		duration := schedule.Arrival.Timestamp - schedule.Departure.Timestamp
 		graph.addEdge(*schedule.Departure, *schedule.Arrival, duration)
 	}
 
-	return graph
+	return graph, nil
 }
 
 // filterFlightSchedules filters flight schedule by cutoffTimestamp i.e. returns flights that have departure time after cutoffTimestamp
-func filterFlightSchedules(schedules []*flightpath.FlightDetail, cutoffTimestamp int64) []*flightpath.FlightDetail {
+func filterFlightSchedules(schedules []*flightpath.FlightDetail, cutoffTimestamp int64) ([]*flightpath.FlightDetail, error) {
 	if cutoffTimestamp == 0 {
-		return schedules
+		return schedules, nil
 	}
 
 	filteredSchedules := make([]*flightpath.FlightDetail, 0)
 	for _, schedule := range schedules {
+		if schedule.Arrival == nil || schedule.Departure == nil {
+			return nil, errors.New(errorconsts.InvalidFlightSchedule)
+		}
+
+		if schedule.Arrival.Timestamp <= 0 || schedule.Departure.Timestamp <= 0 {
+			return nil, errors.New(errorconsts.InvalidFlightSchedule)
+		}
+
 		if schedule.Departure.Timestamp >= cutoffTimestamp {
 			filteredSchedules = append(filteredSchedules, schedule)
 		}
 	}
-	return filteredSchedules
+	return filteredSchedules, nil
 }
 
 // getShortestPath returns one single most relevant flight path among all the shortest path

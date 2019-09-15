@@ -14,6 +14,8 @@ const (
 	NoFlightsAvailable = "NoFlightsAvailable"
 	// SameStartEndCity key
 	SameStartEndCity = "SameStartEndCity"
+	// InvalidFlightSchedule key
+	InvalidFlightSchedule = "InvalidFlightSchedule"
 )
 
 const (
@@ -30,6 +32,8 @@ const (
 	NoFlightsAvailableCode = 102
 	// SameStartEndCityCode code
 	SameStartEndCityCode = 103
+	// InvalidFlightScheduleCode code
+	InvalidFlightScheduleCode = 104
 )
 
 // LTError is custom error for the micro service
@@ -64,5 +68,9 @@ var LTErrorMap = map[string]LTError{
 	SameStartEndCity: {
 		Message: "Hola! Just take a cab and go home :-p",
 		Code:    SameStartEndCityCode,
+	},
+	InvalidFlightSchedule: {
+		Message: "One or more flight schedule provided in the request are invalid. Please make sure each flight schedule has valid arrival and departure details.",
+		Code:    InvalidFlightScheduleCode,
 	},
 }
