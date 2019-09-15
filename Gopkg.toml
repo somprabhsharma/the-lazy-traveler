@@ -47,3 +47,7 @@
 [[constraint]]
   name = "github.com/go-redis/redis"
   version = "6.15.5"
+
+[[override]]
+  name = "gopkg.in/fsnotify.v1"
+  source = "https://github.com/fsnotify/fsnotify.git"
