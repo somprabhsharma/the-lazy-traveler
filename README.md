@@ -8,7 +8,6 @@ There are few assumptions made while implementing the algorithm, which are:
 - There can be only one flight with combination of departure city, departure time, arrival city, arrival time. If there are multiple such flights in the request, they all are treated as one.
 - If more than one paths are found with same duration, then the shortest path is selected based on the number of cities involved in the path.
 - If more than one paths are found with same duration and same number of cities, then first path is selected as shortest path.
-- Since there is typo in the document provided for the key `prefered_time`, the app uses `preferred_time` key instead.
 - If there is gap between arrival and departure time of a flight at an intermediate city then the gap is also included in the duration to calculate shortest path.
 - The preferred time is inclusive i.e any flight that is after or at preferred time will be considered.
 

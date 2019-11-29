@@ -105,6 +105,10 @@ func filterFlightSchedules(schedules []*flightpath.FlightDetail, cutoffTimestamp
 			return nil, errors.New(errorconsts.InvalidFlightSchedule)
 		}
 
+		if schedule.Arrival.Timestamp <= schedule.Departure.Timestamp {
+			return nil, errors.New(errorconsts.InvalidFlightSchedule)
+		}
+
 		if schedule.Departure.Timestamp >= cutoffTimestamp {
 			filteredSchedules = append(filteredSchedules, schedule)
 		}
